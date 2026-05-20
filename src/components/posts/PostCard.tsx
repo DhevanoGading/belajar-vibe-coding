@@ -24,51 +24,47 @@ import { Separator } from "@/components/ui/separator";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useAuthStore } from "@/store/useAuthStore";
 import { usePostStore } from "@/store/usePostStore";
-import { useUserStore } from "@/store/useUserStore";
 import { cn } from "@/lib/utils";
-import type { Post, User } from "@/lib/types";
+import type { PostWithRelations } from "@/lib/types";
 
 interface PostCardProps {
-  post: Post;
+  post: PostWithRelations;
 }
 
 export function PostCard({ post }: PostCardProps) {
   const { user } = useAuthStore();
   const { toggleLike, deletePost, addComment, deleteComment } = usePostStore();
-  const { getUser } = useUserStore();
   const [commentText, setCommentText] = useState("");
   const [showComments, setShowComments] = useState(false);
 
-  const author = getUser(post.authorId);
+  const author = post.author;
   const isLiked = user ? post.likes.includes(user.id) : false;
-  const isOwner = user?.id === post.authorId;
+  const isOwner = user?.id === author.id;
 
-  const handleLike = () => {
+  const handleLike = async () => {
     if (user) {
-      toggleLike(post.id, user.id);
+      await toggleLike(post.id, user.id);
     }
   };
 
-  const handleDeletePost = () => {
+  const handleDeletePost = async () => {
     if (user) {
-      deletePost(post.id, user.id);
+      await deletePost(post.id);
     }
   };
 
-  const handleAddComment = () => {
+  const handleAddComment = async () => {
     if (user && commentText.trim()) {
-      addComment(post.id, user.id, commentText.trim());
+      await addComment(post.id, user.id, commentText.trim());
       setCommentText("");
     }
   };
 
-  const handleDeleteComment = (commentId: string) => {
+  const handleDeleteComment = async (commentId: string) => {
     if (user) {
-      deleteComment(post.id, commentId, user.id);
+      await deleteComment(post.id, commentId);
     }
   };
-
-  if (!author) return <PostCardSkeleton />;
 
   return (
     <>
@@ -77,7 +73,7 @@ export function PostCard({ post }: PostCardProps) {
           <div className="flex items-center gap-3">
             <Link href={`/profile/${author.username}`}>
               <Avatar className="size-10">
-                <AvatarImage src={author.avatar} />
+                <AvatarImage src={author.avatar ?? undefined} />
                 <AvatarFallback>{author.name[0]}</AvatarFallback>
               </Avatar>
             </Link>
@@ -149,7 +145,6 @@ export function PostCard({ post }: PostCardProps) {
         onCommentChange={setCommentText}
         onSubmitComment={handleAddComment}
         onDeleteComment={handleDeleteComment}
-        getUser={getUser}
       />
     </>
   );
@@ -158,12 +153,11 @@ export function PostCard({ post }: PostCardProps) {
 interface CommentsDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  post: Post;
+  post: PostWithRelations;
   commentText: string;
   onCommentChange: (text: string) => void;
   onSubmitComment: () => void;
   onDeleteComment: (commentId: string) => void;
-  getUser: (userId: string) => User | undefined;
 }
 
 function CommentsDialog({
@@ -174,7 +168,6 @@ function CommentsDialog({
   onCommentChange,
   onSubmitComment,
   onDeleteComment,
-  getUser,
 }: CommentsDialogProps) {
   const { user } = useAuthStore();
 
@@ -191,21 +184,20 @@ function CommentsDialog({
             </p>
           ) : (
             post.comments.map((comment) => {
-              const commentAuthor = getUser(comment.authorId);
-              const isCommentOwner = user?.id === comment.authorId;
+              const isCommentOwner = user?.id === comment.author.id;
 
               return (
                 <div key={comment.id} className="flex gap-3">
                   <Avatar className="size-8">
-                    <AvatarImage src={commentAuthor?.avatar} />
+                    <AvatarImage src={comment.author.avatar ?? undefined} />
                     <AvatarFallback>
-                      {commentAuthor?.name[0] || "?"}
+                      {comment.author.name[0] || "?"}
                     </AvatarFallback>
                   </Avatar>
                   <div className="flex-1 space-y-1">
                     <div className="flex items-center justify-between">
                       <span className="font-medium text-sm">
-                        {commentAuthor?.name}
+                        {comment.author.name}
                       </span>
                       {isCommentOwner && (
                         <Button
@@ -250,29 +242,5 @@ function CommentsDialog({
         )}
       </DialogContent>
     </Dialog>
-  );
-}
-
-function PostCardSkeleton() {
-  return (
-    <Card>
-      <CardHeader>
-        <div className="flex items-center gap-3">
-          <Skeleton className="size-10 rounded-full" />
-          <div className="space-y-2">
-            <Skeleton className="h-4 w-32" />
-            <Skeleton className="h-3 w-24" />
-          </div>
-        </div>
-      </CardHeader>
-      <CardContent className="space-y-2">
-        <Skeleton className="h-4 w-full" />
-        <Skeleton className="h-4 w-3/4" />
-        <div className="flex gap-4 pt-2">
-          <Skeleton className="h-8 w-16" />
-          <Skeleton className="h-8 w-16" />
-        </div>
-      </CardContent>
-    </Card>
   );
 }

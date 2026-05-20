@@ -1,55 +1,56 @@
+"use client";
+
 import { create } from "zustand";
-import type { User } from "@/lib/types";
-import { dummyUsers } from "@/data/dummy";
+
+type UserBasic = {
+  id: string;
+  username: string;
+  name: string;
+  avatar: string | null;
+};
+
+type UserProfile = UserBasic & {
+  bio: string | null;
+  followers: string[];
+  following: string[];
+};
 
 interface UserState {
-  users: User[];
-  toggleFollow: (currentUserId: string, targetUserId: string) => void;
-  getUser: (userId: string) => User | undefined;
+  users: UserBasic[];
+  isLoading: boolean;
+  fetchAllUsers: () => Promise<void>;
+  getUserByUsername: (username: string) => Promise<UserProfile | null>;
+  toggleFollow: (followerId: string, followingId: string) => Promise<void>;
 }
 
-export const useUserStore = create<UserState>((set, get) => ({
-  users: [...dummyUsers],
+async function fetchJSON(url: string, options?: RequestInit) {
+  const res = await fetch(url, options);
+  if (!res.ok) {
+    if (res.status === 404) return null;
+    throw new Error(`API error: ${res.status}`);
+  }
+  return res.json();
+}
 
-  toggleFollow: (currentUserId: string, targetUserId: string) => {
-    set((state) => ({
-      users: state.users.map((user) => {
-        if (user.id !== currentUserId) return user;
+export const useUserStore = create<UserState>((set) => ({
+  users: [],
+  isLoading: true,
 
-        const isFollowing = user.following.includes(targetUserId);
-        const targetUser = state.users.find((u) => u.id === targetUserId);
-
-        if (!targetUser) return user;
-
-        return {
-          ...user,
-          following: isFollowing
-            ? user.following.filter((id) => id !== targetUserId)
-            : [...user.following, targetUserId],
-        };
-      }),
-    }));
-
-    set((state) => ({
-      users: state.users.map((user) => {
-        if (user.id !== targetUserId) return user;
-
-        const currentUser = get().users.find((u) => u.id === currentUserId);
-        if (!currentUser) return user;
-
-        const isFollowedBy = currentUser.following.includes(targetUserId);
-
-        return {
-          ...user,
-          followers: isFollowedBy
-            ? [...user.followers, currentUserId]
-            : user.followers.filter((id) => id !== currentUserId),
-        };
-      }),
-    }));
+  fetchAllUsers: async () => {
+    set({ isLoading: true });
+    const users = await fetchJSON("/api/users");
+    set({ users, isLoading: false });
   },
 
-  getUser: (userId: string) => {
-    return get().users.find((user) => user.id === userId);
+  getUserByUsername: async (username: string) => {
+    return fetchJSON(`/api/users/by-username/${username}`);
+  },
+
+  toggleFollow: async (followerId: string, followingId: string) => {
+    await fetchJSON("/api/follow", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ followerId, followingId }),
+    });
   },
 }));

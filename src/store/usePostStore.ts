@@ -1,86 +1,138 @@
+"use client";
+
 import { create } from "zustand";
-import type { Post, Comment } from "@/lib/types";
-import { dummyPosts as initialPosts } from "@/data/dummy";
+
+type PostWithRelations = {
+  id: string;
+  content: string;
+  images: string[] | null;
+  createdAt: Date;
+  author: {
+    id: string;
+    username: string;
+    name: string;
+    avatar: string | null;
+  };
+  likes: string[];
+  comments: {
+    id: string;
+    content: string;
+    createdAt: Date;
+    author: {
+      id: string;
+      username: string;
+      name: string;
+      avatar: string | null;
+    };
+  }[];
+};
 
 interface PostState {
-  posts: Post[];
-  createPost: (authorId: string, content: string) => void;
-  deletePost: (postId: string, authorId: string) => void;
-  toggleLike: (postId: string, userId: string) => void;
-  addComment: (postId: string, authorId: string, content: string) => void;
-  deleteComment: (postId: string, commentId: string, authorId: string) => void;
+  posts: PostWithRelations[];
+  isLoading: boolean;
+  fetchAllPosts: () => Promise<void>;
+  fetchPostsByUser: (userId: string) => Promise<void>;
+  createPost: (authorId: string, content: string, images?: string[]) => Promise<void>;
+  toggleLike: (postId: string, userId: string) => Promise<void>;
+  addComment: (postId: string, authorId: string, content: string) => Promise<void>;
+  deletePost: (postId: string) => Promise<void>;
+  deleteComment: (postId: string, commentId: string) => Promise<void>;
 }
 
-export const usePostStore = create<PostState>((set) => ({
-  posts: [...initialPosts],
+async function fetchJSON(url: string, options?: RequestInit) {
+  const res = await fetch(url, options);
+  if (!res.ok) throw new Error(`API error: ${res.status}`);
+  return res.json();
+}
 
-  createPost: (authorId: string, content: string) => {
-    const newPost: Post = {
-      id: `p${Date.now()}`,
-      authorId,
-      content,
-      likes: [],
-      comments: [],
-      createdAt: new Date().toISOString(),
-    };
-    set((state) => ({
-      posts: [newPost, ...state.posts],
-    }));
+export const usePostStore = create<PostState>((set, get) => ({
+  posts: [],
+  isLoading: true,
+
+  fetchAllPosts: async () => {
+    set({ isLoading: true });
+    const posts = await fetchJSON("/api/posts");
+    set({ posts, isLoading: false });
   },
 
-  deletePost: (postId: string, authorId: string) => {
+  fetchPostsByUser: async (userId: string) => {
+    set({ isLoading: true });
+    const posts = await fetchJSON(`/api/posts?authorId=${userId}`);
+    set({ posts, isLoading: false });
+  },
+
+  createPost: async (authorId, content, images) => {
+    const post = await fetchJSON("/api/posts", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ authorId, content, images }),
+    });
+    set((state) => ({ posts: [post, ...state.posts] }));
+  },
+
+  toggleLike: async (postId, userId) => {
+    const prevPosts = get().posts;
     set((state) => ({
-      posts: state.posts.filter(
-        (post) => !(post.id === postId && post.authorId === authorId)
+      posts: state.posts.map((p) =>
+        p.id === postId
+          ? {
+              ...p,
+              likes: p.likes.includes(userId)
+                ? p.likes.filter((id) => id !== userId)
+                : [...p.likes, userId],
+            }
+          : p
+      ),
+    }));
+    try {
+      await fetchJSON("/api/likes", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ postId, userId }),
+      });
+    } catch {
+      set({ posts: prevPosts });
+    }
+  },
+
+  addComment: async (postId, authorId, content) => {
+    const comment = await fetchJSON("/api/comments", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ postId, authorId, content }),
+    });
+    set((state) => ({
+      posts: state.posts.map((p) =>
+        p.id === postId ? { ...p, comments: [...p.comments, comment] } : p
       ),
     }));
   },
 
-  toggleLike: (postId: string, userId: string) => {
+  deletePost: async (postId) => {
+    const prevPosts = get().posts;
     set((state) => ({
-      posts: state.posts.map((post) => {
-        if (post.id !== postId) return post;
-        const isLiked = post.likes.includes(userId);
-        return {
-          ...post,
-          likes: isLiked
-            ? post.likes.filter((id) => id !== userId)
-            : [...post.likes, userId],
-        };
-      }),
+      posts: state.posts.filter((p) => p.id !== postId),
     }));
+    try {
+      await fetch(`/api/posts/${postId}`, { method: "DELETE" });
+    } catch {
+      set({ posts: prevPosts });
+    }
   },
 
-  addComment: (postId: string, authorId: string, content: string) => {
-    const newComment: Comment = {
-      id: `c${Date.now()}`,
-      authorId,
-      content,
-      createdAt: new Date().toISOString(),
-    };
+  deleteComment: async (postId, commentId) => {
+    const prevPosts = get().posts;
     set((state) => ({
-      posts: state.posts.map((post) => {
-        if (post.id !== postId) return post;
-        return {
-          ...post,
-          comments: [...post.comments, newComment],
-        };
-      }),
+      posts: state.posts.map((p) =>
+        p.id === postId
+          ? { ...p, comments: p.comments.filter((c) => c.id !== commentId) }
+          : p
+      ),
     }));
-  },
-
-  deleteComment: (postId: string, commentId: string, authorId: string) => {
-    set((state) => ({
-      posts: state.posts.map((post) => {
-        if (post.id !== postId) return post;
-        return {
-          ...post,
-          comments: post.comments.filter(
-            (comment) =>
-              !(comment.id === commentId && comment.authorId === authorId)
-          ),
-        };
-      }),
-    }));
+    try {
+      await fetch(`/api/comments/${commentId}`, { method: "DELETE" });
+    } catch {
+      set({ posts: prevPosts });
+    }
   },
 }));
