@@ -1,0 +1,47 @@
+{
+  "$schema": "https://opencode.ai/config.json",
+  "default_agent": "build",
+  "agent": {
+    "frontend-dev": {
+      "description": "Frontend developer specializing in Next.js, React, Tailwind CSS, and shadcn/ui components. Creates beautiful, production-grade UI with attention to typography, motion, and visual details.",
+      "mode": "subagent",
+      "permission": {
+        "skill": {
+          "*": "allow"
+        },
+        "tool": {
+          "*": "allow"
+        }
+      }
+    },
+    "auth-dev": {
+      "description": "Authentication specialist focusing on Better Auth configuration, session management, and security best practices. Implements login flows, protected routes, and auth middleware.",
+      "mode": "subagent",
+      "permission": {
+        "skill": {
+          "*": "allow"
+        },
+        "tool": {
+          "*": "allow"
+        }
+      }
+    },
+    "ui-reviewer": {
+      "description": "UI/UX reviewer that critiques frontend code for design quality, accessibility, and adherence to frontend-design and shadcn best practices. Ensures distinctive, non-generic aesthetics.",
+      "mode": "subagent",
+      "permission": {
+        "edit": "deny",
+        "write": "deny"
+      }
+    }
+  },
+  "permission": {
+    "skill": {
+      "next-best-practices": "allow",
+      "frontend-design": "allow",
+      "shadcn": "allow",
+      "better-auth-best-practices": "allow",
+      "vercel-react-best-practices": "allow"
+    }
+  }
+}
