@@ -1,31 +1,5 @@
-"use client";
-
 import { create } from "zustand";
-
-type PostWithRelations = {
-  id: string;
-  content: string;
-  images: string[] | null;
-  createdAt: Date;
-  author: {
-    id: string;
-    username: string;
-    name: string;
-    avatar: string | null;
-  };
-  likes: string[];
-  comments: {
-    id: string;
-    content: string;
-    createdAt: Date;
-    author: {
-      id: string;
-      username: string;
-      name: string;
-      avatar: string | null;
-    };
-  }[];
-};
+import type { PostWithRelations } from "@/lib/types";
 
 interface PostState {
   posts: PostWithRelations[];

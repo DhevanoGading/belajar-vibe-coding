@@ -1,16 +1,16 @@
 # Project Agents & Skills Configuration
 
 ## Overview
-Konfigurasi untuk proyek sosial media fullstack dengan Next.js, shadcn/ui, dan Better Auth.
+Konfigurasi untuk proyek sosial media fullstack dengan Next.js, shadcn/ui, dan Prisma.
 
 ## Tech Stack
 - **Framework**: Next.js 14+ (App Router)
 - **Styling**: Tailwind CSS
 - **Bahasa**: TypeScript
 - **State Management**: Zustand
-- **Auth**: Better Auth
+- **Auth**: Custom (bcryptjs + Prisma)
 - **UI Components**: shadcn/ui
-- **Data**: Data dummy (JSON/in-memory)
+- **Database**: PostgreSQL + Prisma ORM
 
 ## Available Agents
 
@@ -27,29 +27,32 @@ Gunakan untuk:
 - Styling dan responsive design
 - Animasi dan motion design
 
-#### @auth-dev
-Authentication specialist untuk Better Auth.
+#### @backend-dev
+Backend developer specializing in API routes, Prisma, and database operations.
 Gunakan untuk:
-- Setup autentikasi
-- Protected routes
-- Session management
-- Login/register flows
+- Membuat API endpoints
+- Prisma schema & migrations
+- Database CRUD operations
+- File upload dan validasi
+- Server-side logic
 
-#### @ui-reviewer
-UI/UX reviewer untuk design quality.
+#### @reviewer
+Code reviewer untuk frontend, backend, UI/UX, security, dan architecture.
 Gunakan untuk:
-- Review design consistency
-- Accessibility check
-- Design pattern adherence
+- Review code quality FE & BE
+- Design consistency & accessibility
+- Security & performance audit
+- Architecture review
 
 ## Available Skills
 
 | Skill | Description | Use Case |
 |-------|-------------|----------|
 | `next-best-practices` | Next.js best practices | Server Components, App Router, Data fetching |
-| `frontend-design` | UI/UX design patterns | Typography, motion, visual details |
+| `next-cache-components` | Next.js cache components & PPR | `'use cache'`, `cacheLife()`, revalidation |
+| `next-upgrade` | Next.js upgrade guide | Migration between major versions |
 | `shadcn` | shadcn/ui components | Adding, customizing, composing UI |
-| `better-auth-best-practices` | Better Auth configuration | Auth setup, session, middleware |
+| `ui-ux-pro-max` | UI/UX design intelligence | Typography, color, layout, accessibility |
 | `vercel-react-best-practices` | React performance | Component optimization, bundle size |
 
 ## Konvensi Kode
@@ -97,7 +100,7 @@ src/
 ## Tahap Implementasi
 
 1. **Tahap 1**: Setup & UI Dasar
-2. **Tahap 2**: Autentikasi (Better Auth)
+2. **Tahap 2**: Autentikasi
 3. **Tahap 3**: Feed & Post
 4. **Tahap 4**: Komentar
 5. **Tahap 5**: Profil Pengguna

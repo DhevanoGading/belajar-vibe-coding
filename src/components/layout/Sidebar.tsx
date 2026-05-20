@@ -19,7 +19,9 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
+import {
+  Sheet, SheetContent, SheetTitle, SheetTrigger
+} from "@/components/ui/sheet";
 import { useAuthStore } from "@/store/useAuthStore";
 import { ThemeMenuItem } from "@/components/theme-menu-item";
 import { cn } from "@/lib/utils";
@@ -35,33 +37,34 @@ function NavContent({ pathname, user }: { pathname: string; user: { username: st
       {navItems.map((item) => {
         const isActive = pathname === item.href;
         return (
-          <Link key={item.href} href={item.href}>
-            <Button
-              variant="ghost"
-              className={cn(
-                "w-full justify-start gap-3 h-12 text-base",
-                isActive && "bg-accent font-semibold"
-              )}
-            >
-              <item.icon className="size-5" />
-              {item.label}
-            </Button>
-          </Link>
-        );
-      })}
-      {user && (
-        <Link href={`/profile/${user.username}`}>
           <Button
+            key={item.href}
+            render={<Link href={item.href} />}
+            nativeButton={false}
             variant="ghost"
             className={cn(
               "w-full justify-start gap-3 h-12 text-base",
-              pathname === `/profile/${user.username}` && "bg-accent font-semibold"
+              isActive && "bg-accent font-semibold"
             )}
           >
-            <User className="size-5" />
-            Profile
+            <item.icon className="size-5" />
+            {item.label}
           </Button>
-        </Link>
+        );
+      })}
+      {user && (
+        <Button
+          render={<Link href={`/profile/${user.username}`} />}
+          nativeButton={false}
+          variant="ghost"
+          className={cn(
+            "w-full justify-start gap-3 h-12 text-base",
+            pathname === `/profile/${user.username}` && "bg-accent font-semibold"
+          )}
+        >
+          <User className="size-5" />
+          Profile
+        </Button>
       )}
     </nav>
   );
@@ -83,7 +86,7 @@ export function Sidebar() {
         <div className="mt-auto">
           {user && (
             <DropdownMenu>
-              <DropdownMenuTrigger render={<Button variant="ghost" className="w-full justify-start gap-3 h-auto py-2 px-3" />}>
+              <DropdownMenuTrigger render={<Button variant="ghost" className="w-full justify-start gap-3 h-auto py-2 px-3" aria-label="User menu" />}>
                 <Avatar className="size-8">
                   <AvatarImage src={user.avatar ?? undefined} />
                   <AvatarFallback>{user.name[0]}</AvatarFallback>
@@ -113,10 +116,11 @@ export function Sidebar() {
       <header className="md:hidden flex items-center justify-between px-4 h-14 border-b bg-background sticky top-0 z-50">
         <h1 className="text-lg font-bold">SocialApp</h1>
         <Sheet>
-          <SheetTrigger render={<Button variant="ghost" size="icon" />}>
+          <SheetTrigger render={<Button variant="ghost" size="icon" aria-label="Open navigation menu" />}>
             <Menu className="size-5" />
           </SheetTrigger>
           <SheetContent side="left" className="w-64 p-4">
+            <SheetTitle className="sr-only">Navigation</SheetTitle>
             <NavContent pathname={pathname} user={user} />
           </SheetContent>
         </Sheet>

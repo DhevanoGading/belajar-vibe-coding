@@ -29,9 +29,11 @@ export default function SettingsPage() {
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [success, setSuccess] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const successTimeoutRef = useRef<ReturnType<typeof setTimeout>>(undefined);
 
   useEffect(() => {
     if (!user) router.push("/login");
+    return () => clearTimeout(successTimeoutRef.current);
   }, [user, router]);
 
   if (!user) return null;
@@ -108,7 +110,10 @@ export default function SettingsPage() {
       setSuccess("Profile updated successfully");
       setPassword("");
 
-      setTimeout(() => router.push(`/profile/${username}`), 1000);
+      successTimeoutRef.current = setTimeout(
+        () => router.push(`/profile/${username}`),
+        1000
+      );
     } catch {
       setErrors({ form: "Something went wrong. Please try again." });
     } finally {
@@ -126,14 +131,14 @@ export default function SettingsPage() {
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-6">
             {success && (
-              <div className="flex items-center gap-2 p-3 text-sm text-green-700 bg-green-50 dark:text-green-400 dark:bg-green-950 rounded-md">
+              <div role="status" className="flex items-center gap-2 p-3 text-sm text-emerald-700 bg-emerald-50 dark:text-emerald-400 dark:bg-emerald-950 rounded-md">
                 <CheckCircle2 className="size-4 shrink-0" />
                 {success}
               </div>
             )}
 
             {errors.form && (
-              <div className="flex items-center gap-2 p-3 text-sm text-destructive bg-destructive/10 rounded-md">
+              <div role="alert" className="flex items-center gap-2 p-3 text-sm text-destructive bg-destructive/10 rounded-md">
                 <AlertCircle className="size-4 shrink-0" />
                 {errors.form}
               </div>
@@ -168,7 +173,7 @@ export default function SettingsPage() {
             </div>
 
             {avatarError && (
-              <div className="flex items-center gap-2 p-3 text-sm text-destructive bg-destructive/10 rounded-md">
+              <div role="alert" className="flex items-center gap-2 p-3 text-sm text-destructive bg-destructive/10 rounded-md">
                 <AlertCircle className="size-4 shrink-0" />
                 {avatarError}
               </div>

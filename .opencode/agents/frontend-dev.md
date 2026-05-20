@@ -39,4 +39,4 @@ You are a frontend developer specializing in building exceptional user interface
 - Use proper naming conventions (PascalCase)
 - Co-locate related files
 
-Use `frontend-design` skill for design guidance and `shadcn` skill for component best practices.
+Use `ui-ux-pro-max` skill for design guidance and `shadcn` skill for component best practices.

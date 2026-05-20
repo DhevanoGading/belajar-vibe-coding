@@ -18,10 +18,16 @@ export function CreatePost() {
   const handleSubmit = async () => {
     if (!user || !content.trim()) return;
 
+    const text = content.trim();
     setIsSubmitting(true);
-    await createPost(user.id, content.trim());
-    setContent("");
-    setIsSubmitting(false);
+    try {
+      await createPost(user.id, text);
+      setContent("");
+    } catch {
+      // keep content on error so user doesn't lose their draft
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   if (!user) return null;
@@ -46,6 +52,7 @@ export function CreatePost() {
                 onClick={handleSubmit}
                 disabled={!content.trim() || isSubmitting}
                 className="gap-2"
+                aria-label="Create post"
               >
                 <Send className="size-4" />
                 Post

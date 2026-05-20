@@ -3,10 +3,19 @@ import { prisma } from "@/lib/prisma";
 import bcrypt from "bcryptjs";
 
 export async function POST(request: Request) {
-  const { identifier, password } = await request.json();
+  let body: { identifier?: string; password?: string };
+  try {
+    body = await request.json();
+  } catch {
+    return NextResponse.json({ error: "Invalid JSON body" }, { status: 400 });
+  }
 
+  const { identifier, password } = body;
   if (!identifier) {
     return NextResponse.json({ error: "Email or username is required" }, { status: 400 });
+  }
+  if (!password) {
+    return NextResponse.json({ error: "Password is required" }, { status: 400 });
   }
 
   const isEmail = identifier.includes("@");

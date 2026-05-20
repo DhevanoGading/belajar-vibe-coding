@@ -3,7 +3,16 @@ import { prisma } from "@/lib/prisma";
 import bcrypt from "bcryptjs";
 
 export async function PUT(request: Request) {
-  const body = await request.json();
+  let body: {
+    id?: string; name?: string; username?: string;
+    bio?: string; avatar?: string | null; password?: string;
+  };
+  try {
+    body = await request.json();
+  } catch {
+    return NextResponse.json({ error: "Invalid JSON body" }, { status: 400 });
+  }
+
   const { id, name, username, bio, avatar, password } = body;
 
   if (!id) {

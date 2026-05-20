@@ -3,8 +3,14 @@ import { prisma } from "@/lib/prisma";
 import bcrypt from "bcryptjs";
 
 export async function POST(request: Request) {
-  const { name, username, email, password } = await request.json();
+  let body: { name?: string; username?: string; email?: string; password?: string };
+  try {
+    body = await request.json();
+  } catch {
+    return NextResponse.json({ error: "Invalid JSON body" }, { status: 400 });
+  }
 
+  const { name, username, email, password } = body;
   const errors: Record<string, string> = {};
 
   if (!name || name.trim().length === 0) {
@@ -47,13 +53,13 @@ export async function POST(request: Request) {
     );
   }
 
-  const hashedPassword = await bcrypt.hash(password, 10);
+  const hashedPassword = await bcrypt.hash(password!, 10);
 
   const user = await prisma.user.create({
     data: {
-      username: username.trim(),
-      name: name.trim(),
-      email: email.trim(),
+      username: username!.trim(),
+      name: name!.trim(),
+      email: email!.trim(),
       password: hashedPassword,
     },
     select: {

@@ -74,7 +74,7 @@ export function PostCard({ post }: PostCardProps) {
             <Link href={`/profile/${author.username}`}>
               <Avatar className="size-10">
                 <AvatarImage src={author.avatar ?? undefined} />
-                <AvatarFallback>{author.name[0]}</AvatarFallback>
+                <AvatarFallback>{author.name[0] || "?"}</AvatarFallback>
               </Avatar>
             </Link>
             <div>
@@ -205,6 +205,7 @@ function CommentsDialog({
                           size="icon"
                           className="size-6 text-muted-foreground hover:text-destructive"
                           onClick={() => onDeleteComment(comment.id)}
+                          aria-label="Delete comment"
                         >
                           <Trash2 className="size-3" />
                         </Button>

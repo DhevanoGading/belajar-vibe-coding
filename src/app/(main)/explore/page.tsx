@@ -46,6 +46,7 @@ export default function ExplorePage() {
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             className="pl-9"
+            aria-label="Search posts and users"
           />
         </div>
       </div>

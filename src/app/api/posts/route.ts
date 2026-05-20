@@ -39,7 +39,18 @@ export async function GET(request: NextRequest) {
 }
 
 export async function POST(request: Request) {
-  const { authorId, content, images } = await request.json();
+  let body: { authorId?: string; content?: string; images?: string[] };
+  try {
+    body = await request.json();
+  } catch {
+    return NextResponse.json({ error: "Invalid JSON body" }, { status: 400 });
+  }
+
+  const { authorId, content, images } = body;
+  if (!authorId || !content?.trim()) {
+    return NextResponse.json({ error: "authorId and content are required" }, { status: 400 });
+  }
+
   const post = await prisma.post.create({
     data: {
       authorId,
