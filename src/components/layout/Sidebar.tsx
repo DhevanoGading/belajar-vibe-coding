@@ -8,6 +8,7 @@ import {
   User,
   LogOut,
   Menu,
+  Settings,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -20,6 +21,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { useAuthStore } from "@/store/useAuthStore";
+import { ThemeMenuItem } from "@/components/theme-menu-item";
 import { cn } from "@/lib/utils";
 
 const navItems = [
@@ -92,9 +94,11 @@ export function Sidebar() {
                 </div>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="start" className="w-56">
-                <DropdownMenuItem render={<Link href={`/profile/${user.username}`} />}>
+                <DropdownMenuItem render={<Link href={`/profile/${user.username}`} />} className="gap-2">
+                  <Settings className="size-4" />
                   Profile
                 </DropdownMenuItem>
+                <ThemeMenuItem />
                 <DropdownMenuSeparator />
                 <DropdownMenuItem onClick={logout} className="text-destructive">
                   <LogOut className="size-4 mr-2" />
