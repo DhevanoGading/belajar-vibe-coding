@@ -85,7 +85,7 @@ export function Sidebar() {
             <DropdownMenu>
               <DropdownMenuTrigger render={<Button variant="ghost" className="w-full justify-start gap-3 h-auto py-2 px-3" />}>
                 <Avatar className="size-8">
-                  <AvatarImage src={user.avatar} />
+                  <AvatarImage src={user.avatar ?? undefined} />
                   <AvatarFallback>{user.name[0]}</AvatarFallback>
                 </Avatar>
                 <div className="flex flex-col items-start text-sm">

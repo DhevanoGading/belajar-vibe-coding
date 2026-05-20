@@ -19,7 +19,7 @@ export function CreatePost() {
     if (!user || !content.trim()) return;
 
     setIsSubmitting(true);
-    createPost(user.id, content.trim());
+    await createPost(user.id, content.trim());
     setContent("");
     setIsSubmitting(false);
   };
@@ -31,7 +31,7 @@ export function CreatePost() {
       <CardContent className="pt-4">
         <div className="flex gap-3">
           <Avatar className="size-10">
-            <AvatarImage src={user.avatar} />
+            <AvatarImage src={user.avatar ?? undefined} />
             <AvatarFallback>{user.name[0]}</AvatarFallback>
           </Avatar>
           <div className="flex-1 space-y-3">

@@ -1,11 +1,13 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
-import { ArrowLeft, UserPlus, UserMinus, MessageCircle } from "lucide-react";
+import { ArrowLeft, UserPlus, UserMinus } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Skeleton } from "@/components/ui/skeleton";
 import { useAuthStore } from "@/store/useAuthStore";
 import { useUserStore } from "@/store/useUserStore";
 import { usePostStore } from "@/store/usePostStore";
@@ -17,10 +19,59 @@ export default function ProfilePage() {
   const username = params.username as string;
 
   const { user: currentUser } = useAuthStore();
-  const { users, toggleFollow } = useUserStore();
-  const { posts } = usePostStore();
+  const { getUserByUsername, toggleFollow } = useUserStore();
+  const { posts, fetchPostsByUser } = usePostStore();
+  const [profileUser, setProfileUser] = useState<{
+    id: string;
+    username: string;
+    name: string;
+    avatar: string | null;
+    bio: string | null;
+    followers: string[];
+    following: string[];
+  } | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
 
-  const profileUser = users.find((u) => u.username === username);
+  useEffect(() => {
+    async function load() {
+      setIsLoading(true);
+      const user = await getUserByUsername(username);
+      setProfileUser(user);
+      if (user) {
+        await fetchPostsByUser(user.id);
+      }
+      setIsLoading(false);
+    }
+    load();
+  }, [username, getUserByUsername, fetchPostsByUser]);
+
+  const handleFollow = async () => {
+    if (currentUser && profileUser) {
+      await toggleFollow(currentUser.id, profileUser.id);
+      const updated = await getUserByUsername(username);
+      if (updated) setProfileUser(updated);
+    }
+  };
+
+  if (isLoading) {
+    return (
+      <div className="max-w-2xl mx-auto p-4 space-y-4">
+        <Skeleton className="h-8 w-20" />
+        <Card>
+          <CardContent className="pt-6">
+            <div className="flex flex-col sm:flex-row items-center sm:items-start gap-4">
+              <Skeleton className="size-24 rounded-full" />
+              <div className="flex-1 space-y-2">
+                <Skeleton className="h-8 w-48" />
+                <Skeleton className="h-4 w-32" />
+                <Skeleton className="h-4 w-64" />
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
 
   if (!profileUser) {
     return (
@@ -37,15 +88,11 @@ export default function ProfilePage() {
     );
   }
 
-  const userPosts = posts.filter((post) => post.authorId === profileUser.id);
-  const isFollowing = currentUser?.following.includes(profileUser.id);
+  const userPosts = posts.filter((post) => post.author.id === profileUser.id);
+  const isFollowing = currentUser
+    ? profileUser.followers.includes(currentUser.id)
+    : false;
   const isOwnProfile = currentUser?.id === profileUser.id;
-
-  const handleFollow = () => {
-    if (currentUser) {
-      toggleFollow(currentUser.id, profileUser.id);
-    }
-  };
 
   return (
     <div className="max-w-2xl mx-auto p-4">
@@ -63,7 +110,7 @@ export default function ProfilePage() {
         <CardContent className="pt-6">
           <div className="flex flex-col sm:flex-row items-center sm:items-start gap-4">
             <Avatar className="size-24">
-              <AvatarImage src={profileUser.avatar} />
+              <AvatarImage src={profileUser.avatar ?? undefined} />
               <AvatarFallback className="text-2xl">
                 {profileUser.name[0]}
               </AvatarFallback>
@@ -116,7 +163,6 @@ export default function ProfilePage() {
       <Tabs defaultValue="posts" className="mt-6">
         <TabsList className="w-full">
           <TabsTrigger value="posts" className="flex-1 gap-2">
-            <MessageCircle className="size-4" />
             Posts ({userPosts.length})
           </TabsTrigger>
         </TabsList>
