@@ -95,7 +95,7 @@ export function Sidebar() {
               </DropdownMenuTrigger>
               <DropdownMenuContent align="start" className="w-56">
                 <DropdownMenuItem render={<Link href={`/profile/${user.username}`} />} className="gap-2">
-                  <Settings className="size-4" />
+                  <User className="size-4" />
                   Profile
                 </DropdownMenuItem>
                 <ThemeMenuItem />

@@ -3,10 +3,15 @@ import { prisma } from "@/lib/prisma";
 import bcrypt from "bcryptjs";
 
 export async function POST(request: Request) {
-  const { email, password } = await request.json();
+  const { identifier, password } = await request.json();
 
+  if (!identifier) {
+    return NextResponse.json({ error: "Email or username is required" }, { status: 400 });
+  }
+
+  const isEmail = identifier.includes("@");
   const user = await prisma.user.findUnique({
-    where: { email },
+    where: isEmail ? { email: identifier } : { username: identifier },
     select: {
       id: true,
       username: true,
@@ -19,7 +24,7 @@ export async function POST(request: Request) {
   });
 
   if (!user) {
-    return NextResponse.json({ error: "Invalid email or password" }, { status: 401 });
+    return NextResponse.json({ error: "Invalid email/username or password" }, { status: 401 });
   }
 
   const isValid = await bcrypt.compare(password, user.password);

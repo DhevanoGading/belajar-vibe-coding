@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
-import { ArrowLeft, UserPlus, UserMinus } from "lucide-react";
+import { ArrowLeft, UserPlus, UserMinus, Settings } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -107,7 +107,17 @@ export default function ProfilePage() {
       </Button>
 
       <Card>
-        <CardContent className="pt-6">
+        <CardContent className="pt-6 relative">
+          {isOwnProfile && (
+            <Button
+              variant="ghost"
+              size="icon"
+              className="absolute top-2 right-2"
+              onClick={() => router.push("/settings")}
+            >
+              <Settings className="size-5" />
+            </Button>
+          )}
           <div className="flex flex-col sm:flex-row items-center sm:items-start gap-4">
             <Avatar className="size-24">
               <AvatarImage src={profileUser.avatar ?? undefined} />

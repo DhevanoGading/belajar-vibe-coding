@@ -1,6 +1,6 @@
 import { create } from "zustand";
 
-interface AuthUser {
+export interface AuthUser {
   id: string;
   username: string;
   name: string;
@@ -25,10 +25,14 @@ interface AuthState {
   user: AuthUser | null;
   isAuthenticated: boolean;
   isLoading: boolean;
-  login: (email: string, password: string) => Promise<boolean>;
+  login: (identifier: string, password: string) => Promise<boolean>;
   register: (data: RegisterData) => Promise<RegisterResult>;
   logout: () => void;
   checkSession: () => Promise<void>;
+  updateProfile: (data: Partial<AuthUser> & { password?: string }) => Promise<{
+    success: boolean;
+    errors?: Record<string, string>;
+  }>;
 }
 
 async function fetchJSON(url: string, options?: RequestInit) {
@@ -42,11 +46,11 @@ export const useAuthStore = create<AuthState>((set) => ({
   isAuthenticated: false,
   isLoading: true,
 
-  login: async (email: string, password: string) => {
+  login: async (identifier: string, password: string) => {
     const { ok, data } = await fetchJSON("/api/auth/login", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ email, password }),
+      body: JSON.stringify({ identifier, password }),
     });
 
     if (!ok) return false;
@@ -81,6 +85,21 @@ export const useAuthStore = create<AuthState>((set) => ({
     } else {
       set({ isLoading: false });
     }
+  },
+
+  updateProfile: async (data: Partial<AuthUser> & { password?: string }) => {
+    const { ok, data: resData } = await fetchJSON("/api/auth/update", {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(data),
+    });
+
+    if (!ok) {
+      return { success: false, errors: resData.errors };
+    }
+
+    set({ user: resData.user });
+    return { success: true };
   },
 }));
 
