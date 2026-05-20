@@ -9,13 +9,32 @@ interface AuthUser {
   bio: string | null;
 }
 
+interface RegisterData {
+  name: string;
+  username: string;
+  email: string;
+  password: string;
+}
+
+interface RegisterResult {
+  success: boolean;
+  errors?: Record<string, string>;
+}
+
 interface AuthState {
   user: AuthUser | null;
   isAuthenticated: boolean;
   isLoading: boolean;
   login: (email: string, password: string) => Promise<boolean>;
+  register: (data: RegisterData) => Promise<RegisterResult>;
   logout: () => void;
   checkSession: () => Promise<void>;
+}
+
+async function fetchJSON(url: string, options?: RequestInit) {
+  const res = await fetch(url, options);
+  const data = await res.json();
+  return { ok: res.ok, status: res.status, data };
 }
 
 export const useAuthStore = create<AuthState>((set) => ({
@@ -24,17 +43,31 @@ export const useAuthStore = create<AuthState>((set) => ({
   isLoading: true,
 
   login: async (email: string, password: string) => {
-    const res = await fetch("/api/auth/login", {
+    const { ok, data } = await fetchJSON("/api/auth/login", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ email, password }),
     });
 
-    if (!res.ok) return false;
+    if (!ok) return false;
 
-    const { user } = await res.json();
-    set({ user, isAuthenticated: true });
+    set({ user: data.user, isAuthenticated: true });
     return true;
+  },
+
+  register: async (data: RegisterData) => {
+    const { ok, status, data: resData } = await fetchJSON("/api/auth/register", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(data),
+    });
+
+    if (!ok) {
+      return { success: false, errors: resData.errors };
+    }
+
+    set({ user: resData.user, isAuthenticated: true });
+    return { success: true };
   },
 
   logout: () => {
