@@ -3,29 +3,27 @@ import { prisma } from "@/lib/prisma";
 import bcrypt from "bcryptjs";
 
 export async function POST(request: Request) {
-  let body: { identifier?: string; password?: string };
+  let body: { username?: string; password?: string };
   try {
     body = await request.json();
   } catch {
     return NextResponse.json({ error: "Invalid JSON body" }, { status: 400 });
   }
 
-  const { identifier, password } = body;
-  if (!identifier) {
-    return NextResponse.json({ error: "Email or username is required" }, { status: 400 });
+  const { username, password } = body;
+  if (!username) {
+    return NextResponse.json({ error: "Username is required" }, { status: 400 });
   }
   if (!password) {
     return NextResponse.json({ error: "Password is required" }, { status: 400 });
   }
 
-  const isEmail = identifier.includes("@");
   const user = await prisma.user.findUnique({
-    where: isEmail ? { email: identifier } : { username: identifier },
+    where: { username },
     select: {
       id: true,
       username: true,
       name: true,
-      email: true,
       avatar: true,
       bio: true,
       password: true,
@@ -33,12 +31,12 @@ export async function POST(request: Request) {
   });
 
   if (!user) {
-    return NextResponse.json({ error: "Invalid email/username or password" }, { status: 401 });
+    return NextResponse.json({ error: "Username atau password salah" }, { status: 401 });
   }
 
   const isValid = await bcrypt.compare(password, user.password);
   if (!isValid) {
-    return NextResponse.json({ error: "Invalid email or password" }, { status: 401 });
+    return NextResponse.json({ error: "Username atau password salah" }, { status: 401 });
   }
 
   const { password: _, ...userWithoutPassword } = user;

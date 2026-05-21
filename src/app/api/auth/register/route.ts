@@ -3,14 +3,14 @@ import { prisma } from "@/lib/prisma";
 import bcrypt from "bcryptjs";
 
 export async function POST(request: Request) {
-  let body: { name?: string; username?: string; email?: string; password?: string };
+  let body: { name?: string; username?: string; password?: string };
   try {
     body = await request.json();
   } catch {
     return NextResponse.json({ error: "Invalid JSON body" }, { status: 400 });
   }
 
-  const { name, username, email, password } = body;
+  const { name, username, password } = body;
   const errors: Record<string, string> = {};
 
   if (!name || name.trim().length === 0) {
@@ -23,26 +23,12 @@ export async function POST(request: Request) {
     errors.username = "Username can only contain letters, numbers, and underscores";
   }
 
-  if (!email || email.trim().length === 0) {
-    errors.email = "Email is required";
-  } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-    errors.email = "Invalid email format";
-  }
-
   if (!password || password.length < 8) {
     errors.password = "Password must be at least 8 characters";
   }
 
   if (Object.keys(errors).length > 0) {
     return NextResponse.json({ errors }, { status: 400 });
-  }
-
-  const existingEmail = await prisma.user.findUnique({ where: { email } });
-  if (existingEmail) {
-    return NextResponse.json(
-      { errors: { email: "Email already registered" } },
-      { status: 409 }
-    );
   }
 
   const existingUsername = await prisma.user.findUnique({ where: { username } });
@@ -59,14 +45,12 @@ export async function POST(request: Request) {
     data: {
       username: username!.trim(),
       name: name!.trim(),
-      email: email!.trim(),
       password: hashedPassword,
     },
     select: {
       id: true,
       username: true,
       name: true,
-      email: true,
       avatar: true,
       bio: true,
     },

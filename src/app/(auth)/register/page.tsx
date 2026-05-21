@@ -15,7 +15,6 @@ export default function RegisterPage() {
 
   const [name, setName] = useState("");
   const [username, setUsername] = useState("");
-  const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
@@ -36,7 +35,7 @@ export default function RegisterPage() {
 
     setIsLoading(true);
 
-    const result = await register({ name, username, email, password });
+    const result = await register({ name, username, password });
 
     if (result.success) {
       router.push("/home");
@@ -53,12 +52,11 @@ export default function RegisterPage() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-violet-50 via-white to-cyan-50 p-4">
-      <Card className="w-full max-w-md">
+    <Card className="w-full max-w-md">
         <CardHeader className="space-y-1 text-center">
-          <CardTitle className="text-2xl font-bold">Create Account</CardTitle>
+          <CardTitle className="text-2xl font-bold">Gabung ANSOS</CardTitle>
           <CardDescription>
-            Fill in your details to get started
+            Buat username dan nama panggilanmu
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -72,11 +70,11 @@ export default function RegisterPage() {
 
             <div className="space-y-2">
               <label htmlFor="name" className="text-sm font-medium">
-                Full Name
+                Nama Panggilan
               </label>
               <Input
                 id="name"
-                placeholder="John Doe"
+                placeholder="sesuai kamu mau"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
                 required
@@ -99,23 +97,6 @@ export default function RegisterPage() {
               />
               {fieldErrors.username && (
                 <p className="text-xs text-destructive">{fieldErrors.username}</p>
-              )}
-            </div>
-
-            <div className="space-y-2">
-              <label htmlFor="email" className="text-sm font-medium">
-                Email
-              </label>
-              <Input
-                id="email"
-                type="email"
-                placeholder="your@email.com"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                required
-              />
-              {fieldErrors.email && (
-                <p className="text-xs text-destructive">{fieldErrors.email}</p>
               )}
             </div>
 
@@ -176,18 +157,17 @@ export default function RegisterPage() {
             </div>
 
             <Button type="submit" className="w-full" disabled={isLoading}>
-              {isLoading ? "Creating account..." : "Create Account"}
+              {isLoading ? "Mendaftarkan..." : "Daftar"}
             </Button>
           </form>
 
           <p className="mt-6 text-center text-sm text-muted-foreground">
-            Already have an account?{" "}
+            Sudah punya akun?{" "}
             <Link href="/login" className="font-medium text-primary hover:underline">
-              Sign in
+              Masuk
             </Link>
           </p>
         </CardContent>
       </Card>
-    </div>
   );
 }
