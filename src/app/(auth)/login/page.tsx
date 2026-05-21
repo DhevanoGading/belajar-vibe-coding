@@ -12,7 +12,7 @@ import { AlertCircle, Eye, EyeOff } from "lucide-react";
 export default function LoginPage() {
   const router = useRouter();
   const { login } = useAuthStore();
-  const [identifier, setIdentifier] = useState("");
+  const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState("");
@@ -23,23 +23,22 @@ export default function LoginPage() {
     setError("");
     setIsLoading(true);
 
-    const success = await login(identifier, password);
+    const success = await login(username, password);
 
     if (success) {
       router.push("/home");
     } else {
-      setError("Invalid email or password");
+      setError("Username atau password salah");
     }
     setIsLoading(false);
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-violet-50 via-white to-cyan-50 p-4">
-      <Card className="w-full max-w-md">
+    <Card className="w-full max-w-md">
         <CardHeader className="space-y-1 text-center">
-          <CardTitle className="text-2xl font-bold">Welcome Back</CardTitle>
+          <CardTitle className="text-2xl font-bold">Masuk ANSOS</CardTitle>
           <CardDescription>
-            Enter your credentials to access your account
+            Masuk dengan username dan password
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -51,15 +50,15 @@ export default function LoginPage() {
               </div>
             )}
             <div className="space-y-2">
-              <label htmlFor="identifier" className="text-sm font-medium">
-                Email or Username
+              <label htmlFor="username" className="text-sm font-medium">
+                Username
               </label>
               <Input
-                id="identifier"
+                id="username"
                 type="text"
-                placeholder="your@email.com or username"
-                value={identifier}
-                onChange={(e) => setIdentifier(e.target.value)}
+                placeholder="username kamu"
+                value={username}
+                onChange={(e) => setUsername(e.target.value)}
                 required
               />
             </div>
@@ -88,18 +87,17 @@ export default function LoginPage() {
               </div>
             </div>
             <Button type="submit" className="w-full" disabled={isLoading}>
-              {isLoading ? "Signing in..." : "Sign In"}
+              {isLoading ? "Memasukkan..." : "Masuk"}
             </Button>
           </form>
 
           <p className="mt-6 text-center text-sm text-muted-foreground">
-            Don&apos;t have an account?{" "}
+            Belum punya akun?{" "}
             <Link href="/register" className="font-medium text-primary hover:underline">
-              Create one
+              Daftar
             </Link>
           </p>
         </CardContent>
       </Card>
-    </div>
   );
 }

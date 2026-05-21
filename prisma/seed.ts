@@ -7,12 +7,11 @@ async function main() {
   const hashedPassword = await bcrypt.hash("password123", 10);
 
   const john = await prisma.user.upsert({
-    where: { email: "john@example.com" },
+    where: { username: "johndoe" },
     update: {},
     create: {
       username: "johndoe",
       name: "John Doe",
-      email: "john@example.com",
       password: hashedPassword,
       avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=John",
       bio: "Frontend developer passionate about React and Next.js",
@@ -20,12 +19,11 @@ async function main() {
   });
 
   const jane = await prisma.user.upsert({
-    where: { email: "jane@example.com" },
+    where: { username: "janesmith" },
     update: {},
     create: {
       username: "janesmith",
       name: "Jane Smith",
-      email: "jane@example.com",
       password: hashedPassword,
       avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=Jane",
       bio: "Full-stack developer | TypeScript enthusiast",
@@ -33,12 +31,11 @@ async function main() {
   });
 
   const alex = await prisma.user.upsert({
-    where: { email: "alex@example.com" },
+    where: { username: "alexdev" },
     update: {},
     create: {
       username: "alexdev",
       name: "Alex Developer",
-      email: "alex@example.com",
       password: hashedPassword,
       avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=Alex",
       bio: "Building cool stuff with Next.js and Tailwind CSS",
@@ -46,12 +43,11 @@ async function main() {
   });
 
   const sarah = await prisma.user.upsert({
-    where: { email: "sarah@example.com" },
+    where: { username: "sarahux" },
     update: {},
     create: {
       username: "sarahux",
       name: "Sarah Designer",
-      email: "sarah@example.com",
       password: hashedPassword,
       avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=Sarah",
       bio: "UX Designer | Creating beautiful experiences",

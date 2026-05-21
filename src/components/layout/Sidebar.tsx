@@ -77,8 +77,9 @@ export function Sidebar() {
   return (
     <>
       <aside className="hidden md:flex flex-col w-64 h-screen sticky top-0 border-r bg-background p-4">
-        <div className="mb-6">
-          <h1 className="text-xl font-bold px-3">SocialApp</h1>
+        <div className="mb-6 px-3">
+          <h1 className="text-xl font-bold">ANSOS</h1>
+          <p className="text-xs text-muted-foreground">Anonim Sosial</p>
         </div>
 
         <NavContent pathname={pathname} user={user} />
@@ -114,7 +115,10 @@ export function Sidebar() {
       </aside>
 
       <header className="md:hidden flex items-center justify-between px-4 h-14 border-b bg-background sticky top-0 z-50">
-        <h1 className="text-lg font-bold">SocialApp</h1>
+        <div>
+          <h1 className="text-lg font-bold">ANSOS</h1>
+          <p className="text-[10px] text-muted-foreground -mt-0.5">Anonim Sosial</p>
+        </div>
         <Sheet>
           <SheetTrigger render={<Button variant="ghost" size="icon" aria-label="Open navigation menu" />}>
             <Menu className="size-5" />

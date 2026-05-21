@@ -4,7 +4,6 @@ export interface AuthUser {
   id: string;
   username: string;
   name: string;
-  email: string;
   avatar: string | null;
   bio: string | null;
 }
@@ -12,7 +11,6 @@ export interface AuthUser {
 interface RegisterData {
   name: string;
   username: string;
-  email: string;
   password: string;
 }
 
@@ -46,11 +44,11 @@ export const useAuthStore = create<AuthState>((set) => ({
   isAuthenticated: false,
   isLoading: true,
 
-  login: async (identifier: string, password: string) => {
+  login: async (username: string, password: string) => {
     const { ok, data } = await fetchJSON("/api/auth/login", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ identifier, password }),
+      body: JSON.stringify({ username, password }),
     });
 
     if (!ok) return false;
